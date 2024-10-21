@@ -13,8 +13,14 @@ char *read_line(FILE *file_p){
         assert_heap_allocation(buffer);
         
         int total_num_read = 0;
-        while(fgets(buffer + total_num_read, buffer_len - total_num_read, file_p) != NULL){
-                printf("read : %d %d\n", total_num_read, buffer_len);
+        char *str;
+        for(;;){
+                buffer = fgets(buffer + total_num_read, buffer_len - total_num_read, file_p);
+                if(buffer == NULL){
+                        break;
+                }
+
+                //printf("read : %d %d\n", total_num_read, buffer_len);
                 int num_read = strlen(buffer + total_num_read);
                 total_num_read += num_read;
                 
@@ -31,8 +37,10 @@ char *read_line(FILE *file_p){
                 }
         }
         
-        printf("total read : %d\n", total_num_read);
-        buffer[total_num_read] = '\0';
+        //printf("total read : %d\n", total_num_read);
+        if(buffer != NULL){
+                buffer[total_num_read] = '\0';
+        }
         return buffer;
 }
 
@@ -54,7 +62,8 @@ int main(int argc, char **argv){
         for(;;){
                 char *line = read_line(file);
                 int len = strlen(line);
-                fprintf(stdout, "%s\n", line);
+                if(len)
+                        fprintf(stdout, "%s\n", line);
                 free(line);
 
                 if(len == 0){
