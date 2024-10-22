@@ -28,7 +28,7 @@ struct line_node *create_line_node(char *line, ull len, ull cnt){
 struct line_node *search_line(struct line_node *head, char *line, ull len){
         struct line_node *node = head;
         while(node != NULL){
-                if(strncmp(node->line, line, len < node->len ? len : node->len) == 0){
+                if(strncmp(node->line, line, len > node->len ? len : node->len) == 0){
                         break;
                 }
 
@@ -84,7 +84,7 @@ void uniq_lines(FILE *fp){
 
         struct line_node *node = head;
         while(node != NULL){
-                fprintf(stdout, "%7ud %s\n", node->cnt, node->line);
+                fprintf(stdout, "%7u %s\n", node->cnt, node->line);
                 node = node->next;
         }
 
