@@ -4,6 +4,10 @@
 #include"read_line.h"
 
 void mytail(FILE *file_p, const int N){
+        if(N < 1){
+                return;
+        }
+
         char *lines[N];
         int i = 0;
         for(int i = 0; i < N; i++){
