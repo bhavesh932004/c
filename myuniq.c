@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <error.h>
 #include "read_line.h"
 
 #define ull unsigned int 
@@ -62,7 +63,8 @@ void free_list(struct line_node *head){
         }
 }
 
-void uniq_lines(FILE *fp){
+/* print each unique line only once and it's frequency */
+void print_uniq_lines(FILE *fp){
         struct line_node *head = NULL;
         for(;;){
                 char *line = read_line(fp);
@@ -91,21 +93,52 @@ void uniq_lines(FILE *fp){
         free_list(head);
 }
 
-int main(int argc, char **argv){
-        if(argc != 2){
-                fprintf(stdout, "Usage: %s <filepath>\n", argv[0]);
-                exit(1);
+/* filter adjacent matching lines and print only one and it's frequency */
+void print_uniq_lines_1(FILE *fp){
+        char *prev = NULL;
+        unsigned long long cnt = 0;
+        for(;;){
+                char *line = read_line(fp);
+                if(line == NULL){
+                        if(prev != NULL){
+                                fprintf(stdout, "%7llu %s\n", cnt, prev);
+                                free(prev);
+                        }
+                        
+                        break;
+                }
+
+                if(prev == NULL){
+                        prev = line;
+                }
+
+                size_t prev_len = strlen(prev);
+                size_t line_len = strlen(line);
+                if(strncmp(prev, line, prev_len > line_len ? prev_len : line_len) == 0){
+                        cnt++;
+                        if(cnt > 1)
+                                free(line);
+                }else{
+                        fprintf(stdout, "%7llu %s\n", cnt, prev);
+                        free(prev);
+                        prev = line;
+                        cnt = 1;
+                }
         }
-
-        FILE *file;
-        file = fopen(argv[1], "r");
-        if(file == NULL){
-                fprintf(stdout, "%s: no such file\n", argv[1]);
-                exit(1);
-        }
-
-        uniq_lines(file); 
-
-        fclose(file);
 }
 
+int main(int argc, char *argv[])
+{
+    FILE *fp;
+
+    if (argc == 1) {
+        fp = stdin;
+    } else {
+        fp = fopen(argv[1], "r");
+        if (fp == NULL) error(1, 0, "%s: no such file", argv[1]);
+    }
+
+    print_uniq_lines_1(fp);
+    fclose(fp);
+    return 0;
+}
