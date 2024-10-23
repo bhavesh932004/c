@@ -88,8 +88,16 @@ size_t c_strcspn(const char *s, const char *reject){
 
 	return length;
 }
+
 int main(int argc, char *argv[]){
-	void a = 10;
-	printf("%d\n", (int)a);
+        int t;
+        scanf("%d", &t);
+        while(t--){
+                char a[100], b[100];
+                scanf("%s %s", a, b);
+                printf("%zu %zu\n", strspn(a, b), c_strspn(a, b));
+                printf("%zu %zu\n", strcspn(a, b), c_strcspn(a, b));
+        }
+
 	return 0;
 }

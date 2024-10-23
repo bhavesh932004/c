@@ -29,7 +29,7 @@ struct line_node *create_line_node(char *line, ull len, ull cnt){
 struct line_node *search_line(struct line_node *head, char *line, ull len){
         struct line_node *node = head;
         while(node != NULL){
-                if(strncmp(node->line, line, len > node->len ? len : node->len) == 0){
+                if(strncmp(node->line, line, len + 1) == 0){
                         break;
                 }
 
@@ -112,9 +112,7 @@ void print_uniq_lines_1(FILE *fp){
                         prev = line;
                 }
 
-                size_t prev_len = strlen(prev);
-                size_t line_len = strlen(line);
-                if(strncmp(prev, line, prev_len > line_len ? prev_len : line_len) == 0){
+                if(strncmp(prev, line, strlen(line) + 1) == 0){
                         cnt++;
                         if(cnt > 1)
                                 free(line);
@@ -138,7 +136,7 @@ int main(int argc, char *argv[])
         if (fp == NULL) error(1, 0, "%s: no such file", argv[1]);
     }
 
-    print_uniq_lines_1(fp);
+    print_uniq_lines(fp);
     fclose(fp);
     return 0;
 }
