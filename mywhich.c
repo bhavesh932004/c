@@ -112,10 +112,42 @@ bool scan_token(const char **p_input, const char *delimiters, char buf[], size_t
                 buf[i] = input[start + i];
         }
         
-        *p_input = *p_input + end + (b_search(other, input[end]) != -1);
+        *p_input = *p_input + end + (input[end] != '\0' && b_search(other, input[end]) != -1);
         
         buf[end - start] = '\0';
         return end - start > 0 ? true : false;
+}
+
+char *scan_token_n(const char **p_input, const char *delimiters)
+{
+	int n = strlen(delimiters);
+	char other[n + 1];
+	strcpy(other, delimiters);
+	merge_sort(other, 0, n - 1);
+        
+        const char *input = *p_input;
+        int start = 0;
+        while(input[start] != '\0' && b_search(other, input[start]) != -1){
+                start++;
+        }
+
+        int end = start;
+        while(input[end] != '\0' && b_search(other, input[end]) == -1){
+                end++;
+        }
+        
+        if(end - start == 0)
+                return NULL;
+
+        char *token = (char *) malloc((end - start + 1) * sizeof(char));
+        for(int i = 0; i < end - start; i++){
+                token[i] = input[start + i];
+        }
+        token[end - start] = '\0';
+
+        *p_input = *p_input + end + (input[end] != '\0');
+
+        return token;
 }
 
 const char *get_env_value(const char **envp, const char *key){
@@ -139,20 +171,42 @@ const char *get_env_value(const char **envp, const char *key){
         return NULL;
 }
 
-int main(int argc, char **argv)
+void search_command(const char *env_path, char *command){
+        for(;;){
+                char *token = scan_token_n(&env_path, ":");
+                fprintf(stdout, "TOKEN: %s\n", token);
+                if(token == NULL)
+                       break;
+                
+                size_t token_len = strlen(token);
+                size_t cmd_len = strlen(command);
+                char *cmd_path = (char *) malloc((token_len + cmd_len + 2) * sizeof(char));
+
+                strncpy(cmd_path, token, token_len);
+                cmd_path[token_len] = '/';
+                strncpy(cmd_path + token_len + 1, command, cmd_len);
+                cmd_path[token_len + cmd_len + 1] = '\0';
+                printf("CMD_PATH: %s\n", cmd_path);
+                
+                /*
+TODO: use accept library function to check if the process has read & execute permissions on the cmd_path
+*/
+
+                free(token);
+                free(cmd_path);
+        }
+}
+
+int main(int argc, char **argv, const char **envp)
 {
-        if(argc != 4){
-                fprintf(stdout, "Usage: %s <input_string> <delimiters> <token_buffer_size>\n", argv[0]);
+        const char *env_path = get_env_value(envp, "PATH");
+        if(env_path == NULL){
                 exit(1);
         }
-        
-        size_t buf_size = atoi(argv[3]);
-        char buf[buf_size];
-        const char *input = argv[1]; 
-        const char *delimiters = argv[2];
 
-        while(scan_token(&input, delimiters, buf, buf_size)){
-                fprintf(stdout, "TOKEN: %s\n", buf);
+        for(int i = 1; i < argc; i++){
+                fprintf(stdout, "COMMAND: %s\n", argv[i]);
+                search_command(env_path, argv[i]);
         }
 
         return 0;
