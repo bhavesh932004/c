@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdbool.h>
 
 void merge(char *a, int left, int mid, int right){
@@ -174,26 +175,29 @@ const char *get_env_value(const char **envp, const char *key){
 void search_command(const char *env_path, char *command){
         for(;;){
                 char *token = scan_token_n(&env_path, ":");
-                fprintf(stdout, "TOKEN: %s\n", token);
+                //fprintf(stdout, "TOKEN: %s\n", token);
                 if(token == NULL)
-                       break;
+                        break;
                 
                 size_t token_len = strlen(token);
                 size_t cmd_len = strlen(command);
                 char *cmd_path = (char *) malloc((token_len + cmd_len + 2) * sizeof(char));
+                bool is_the_path = false;
 
                 strncpy(cmd_path, token, token_len);
                 cmd_path[token_len] = '/';
                 strncpy(cmd_path + token_len + 1, command, cmd_len);
                 cmd_path[token_len + cmd_len + 1] = '\0';
-                printf("CMD_PATH: %s\n", cmd_path);
                 
-                /*
-TODO: use accept library function to check if the process has read & execute permissions on the cmd_path
-*/
+                if(access((const char *) cmd_path, F_OK & R_OK & X_OK) == 0){
+                        fprintf(stdout, "%s\n", cmd_path);
+                        is_the_path = true;
+                }
 
                 free(token);
                 free(cmd_path);
+                if(is_the_path)
+                        break;
         }
 }
 
@@ -205,7 +209,7 @@ int main(int argc, char **argv, const char **envp)
         }
 
         for(int i = 1; i < argc; i++){
-                fprintf(stdout, "COMMAND: %s\n", argv[i]);
+                //fprintf(stdout, "COMMAND: %s\n", argv[i]);
                 search_command(env_path, argv[i]);
         }
 
