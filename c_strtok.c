@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -104,7 +103,6 @@ char *scan_token_alloc_buf(const char **p_input, const char *delimiters)
                 return NULL;
 
         char *token = (char *) malloc((end - start + 1) * sizeof(char));
-	fprintf(stdout, "malloced\n");
         for(int i = 0; i < end - start; i++){
                 token[i] = input[start + i];
         }
