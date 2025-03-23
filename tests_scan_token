@@ -1,0 +1,8 @@
+Input string		| Delimiters string		| Output
+""			  ""				  { "" }
+""			  ";:"				  { "" }
+"foo-to-bar-to-baz"	  ""				  { "foo-to-bar-to-baz" }
+"foo-to-bar-to-baz"       ";"				  { "foo-to-bar-to-baz" }
+"foo-to-bar-to-baz"       "-"				  { "foo", "to", "bar", "to", "baz" } 
+"foo-to_bar-to_baz"       "-_"                            { "foo", "to", "bar", "to", "bar" }
+"foo to bar to baz"       " o"                            { "f", "t", "bar", "t", "baz" }
